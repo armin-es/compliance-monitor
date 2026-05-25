@@ -37,7 +37,7 @@ async function main() {
 
   for (const item of seedData) {
     const response = await fetch(
-      `https://api-inference.huggingface.co/models/facebook/bart-large-mnli`,
+      `https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli`,
       {
         method: "POST",
         headers: {
@@ -60,17 +60,14 @@ async function main() {
       continue;
     }
 
-    const data = (await response.json()) as {
-      labels: string[];
-      scores: number[];
-    };
+    const data = (await response.json()) as { label: string; score: number }[];
 
-    const topIndex = data.scores.indexOf(Math.max(...data.scores));
-    const result = (data.labels[topIndex] ?? "unclear").toUpperCase() as
+    const top = data[0];
+    const result = (top?.label ?? "unclear").toUpperCase() as
       | "COMPLIES"
       | "DEVIATES"
       | "UNCLEAR";
-    const confidence = data.scores[topIndex] ?? 0;
+    const confidence = top?.score ?? 0;
 
     await db.analysis.create({
       data: {

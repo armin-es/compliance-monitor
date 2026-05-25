@@ -6,16 +6,12 @@ import {
 } from "@/server/repositories/analysis";
 
 const HF_MODEL = "facebook/bart-large-mnli";
-const HF_API_URL = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
+const HF_API_URL = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}`;
 const CANDIDATE_LABELS = ["complies", "deviates", "unclear"] as const;
 const MAX_RETRIES = 3;
 const TIMEOUT_MS = 45_000;
 
-interface HFResponse {
-  labels: string[];
-  scores: number[];
-  sequence: string;
-}
+type HFResponse = { label: string; score: number }[];
 
 interface HFLoadingError {
   error: string;
@@ -99,9 +95,9 @@ function mapResult(hfResponse: HFResponse): {
   result: ComplianceResult;
   confidence: number;
 } {
-  const topIndex = hfResponse.scores.indexOf(Math.max(...hfResponse.scores));
-  const topLabel = hfResponse.labels[topIndex].toUpperCase();
-  const confidence = hfResponse.scores[topIndex];
+  const top = hfResponse[0];
+  const topLabel = (top?.label ?? "unclear").toUpperCase();
+  const confidence = top?.score ?? 0;
 
   const result: ComplianceResult =
     topLabel === "COMPLIES" || topLabel === "DEVIATES" || topLabel === "UNCLEAR"
