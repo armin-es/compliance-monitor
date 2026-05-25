@@ -1,5 +1,5 @@
 import { PrismaClient } from "../app/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const userId = process.env.SEED_USER_ID;
 if (!userId) {
@@ -8,9 +8,7 @@ if (!userId) {
 }
 const seedUserId = userId as string;
 
-const dbUrl = process.env.DATABASE_URL ?? "file:./dev.db";
-const filePath = dbUrl.replace(/^file:/, "");
-const adapter = new PrismaBetterSqlite3({ url: filePath });
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const db = new PrismaClient({ adapter });
 
 const seedData = [
@@ -33,7 +31,7 @@ const seedData = [
 ];
 
 async function main() {
-  console.log("Seeding database with example compliance checks…");
+  console.log("Seeding database with example compliance checks...");
 
   for (const item of seedData) {
     const response = await fetch(
@@ -79,7 +77,7 @@ async function main() {
       },
     });
 
-    console.log(`✓ ${item.action.slice(0, 50)}… → ${result} (${Math.round(confidence * 100)}%)`);
+    console.log(`✓ ${item.action.slice(0, 50)}... -> ${result} (${Math.round(confidence * 100)}%)`);
   }
 
   console.log("Seed complete.");

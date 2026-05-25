@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
 
 # next.js
 /.next/
@@ -36,13 +38,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local database files
+*.db
+*.db-shm
+*.db-wal
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 /app/generated/prisma
 
-# sqlite database files
-*.db
-*.db-shm
-*.db-wal

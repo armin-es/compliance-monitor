@@ -12,7 +12,7 @@ The core detection loop: an action is observed, measured against a standard, and
 | --- | --- |
 | Authentication | Clerk: middleware protection, session-aware SSR, ownership checks on mutations |
 | Layered architecture | Route / Service / Repository: each layer has one responsibility |
-| Real persistence | Prisma 7 + SQLite (dev) / Postgres (prod swap via one env var) |
+| Real persistence | Prisma 7 + Neon Postgres; same schema and migrations in dev and prod |
 | Type safety end-to-end | Zod schemas, TypeScript types, Prisma types: no `any` |
 | Server/Client boundary | `page.tsx` is a Server Component; interactive state in `ComplianceMonitor` |
 | Server state | TanStack Query v5: `useMutation` + `useQuery`, not `useState` + raw fetch |
@@ -32,7 +32,7 @@ The core detection loop: an action is observed, measured against a standard, and
 - **Auth:** Clerk
 - **Styling:** Tailwind CSS v4 + shadcn/ui
 - **Server state:** TanStack Query v5
-- **Database:** Prisma 7 + SQLite (dev) / Postgres (prod)
+- **Database:** Prisma 7 + Neon Postgres
 - **Validation:** Zod v4
 - **Rate limiting:** @upstash/ratelimit (optional in dev)
 - **Testing:** Playwright + @clerk/testing
@@ -60,7 +60,7 @@ cp .env.example .env.local
 | Variable | How to get it |
 | --- | --- |
 | `HUGGINGFACE_API_TOKEN` | Create a free account at [huggingface.co](https://huggingface.co), then go to Profile → Settings → Access Tokens → New token (Read) |
-| `DATABASE_URL` | Leave as `file:./dev.db` for local SQLite |
+| `DATABASE_URL` | Create a free project at [neon.tech](https://neon.tech), create a dev branch, copy the connection string |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Create a project at [clerk.com](https://clerk.com) → API Keys |
 | `CLERK_SECRET_KEY` | Same Clerk project → API Keys |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Set to `/sign-in` |
