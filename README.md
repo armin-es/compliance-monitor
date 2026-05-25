@@ -1,36 +1,173 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Compliance Monitor — EASE IQ Take-Home
 
-## Getting Started
+A production-quality Compliance Monitor built for the EASE IQ engineering take-home exercise. Actions are evaluated against process standards using the `facebook/bart-large-mnli` Zero-Shot NLI model, and results are stored in a per-user compliance log.
 
-First, run the development server:
+---
+
+## What This Demonstrates
+
+This exercise is a miniaturized version of EASE IQ's core detection loop: an action is observed, it's measured against a standard, and the result is logged as COMPLIES, DEVIATES, or NO STANDARD. The architecture treats it accordingly — not as a toy project, but as a foundation that could scale into a multi-tenant production system.
+
+| Signal | Implementation |
+| --- | --- |
+| Authentication | Clerk — middleware protection, session-aware SSR, ownership checks on mutations |
+| Layered architecture | Route → Service → Repository — each layer has one responsibility |
+| Real persistence | Prisma 7 + SQLite (dev) / Postgres (prod swap via one env var) |
+| Type safety end-to-end | Zod schemas → TypeScript types → Prisma types — no `any` |
+| Server/Client boundary | `page.tsx` is a Server Component; interactive state in `ComplianceMonitor` |
+| Server state | TanStack Query v5 — `useMutation` + `useQuery`, not `useState` + raw fetch |
+| SSR initial data | No loading flash — data fetched server-side and passed as `initialData` |
+| Rate limiting | `POST /api/analyze` rate-limited per user via Upstash Redis |
+| Soft delete | Records are never hard-deleted — auditable, append-only history |
+| HF edge cases | Cold start retry (2s → 4s → 8s), 45s timeout, typed error classification |
+| Domain language | UI speaks EASE IQ vocabulary throughout |
+| Component library | shadcn/ui throughout — design-system fluency |
+| E2E coverage | Playwright + `@clerk/testing` — 5 authenticated user flows |
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router) + TypeScript 5 (strict)
+- **Auth:** Clerk
+- **Styling:** Tailwind CSS v4 + shadcn/ui
+- **Server state:** TanStack Query v5
+- **Database:** Prisma 7 + SQLite (dev) / Postgres (prod)
+- **Validation:** Zod v4
+- **Rate limiting:** @upstash/ratelimit (optional in dev)
+- **Testing:** Playwright + @clerk/testing
+
+---
+
+## Setup
+
+### 1. Clone and install
+
+```bash
+git clone <repo-url>
+cd compliance-monitor
+npm install
+```
+
+### 2. Environment variables
+
+Copy `.env.example` to `.env.local` and fill in the values:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | How to get it |
+| --- | --- |
+| `HUGGINGFACE_API_TOKEN` | Create a free account at [huggingface.co](https://huggingface.co), then go to Profile → Settings → Access Tokens → New token (Read) |
+| `DATABASE_URL` | Leave as `file:./dev.db` for local SQLite |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Create a project at [clerk.com](https://clerk.com) → API Keys |
+| `CLERK_SECRET_KEY` | Same Clerk project → API Keys |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Set to `/sign-in` |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Set to `/sign-up` |
+| `UPSTASH_REDIS_REST_URL` | Optional — leave blank to skip rate limiting in dev |
+| `UPSTASH_REDIS_REST_TOKEN` | Optional — leave blank to skip rate limiting in dev |
+
+### 3. Database setup
+
+```bash
+npx prisma migrate dev
+```
+
+### 4. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Sign up for an account and start running compliance checks.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Seed the database (optional)
 
-## Learn More
+To pre-populate the four spec test cases from the exercise brief:
 
-To learn more about Next.js, take a look at the following resources:
+1. Sign up in the app and open your browser's dev console
+2. Run `Clerk.user.id` to get your Clerk `userId`
+3. Add it to `.env.local`: `SEED_USER_ID=user_xxxx`
+4. Run the seed:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run db:seed
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This calls the HuggingFace API live and stores all four results with real confidence scores.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Running Tests
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Playwright E2E
+
+The Playwright tests use `@clerk/testing` to inject authenticated sessions — they do not go through the sign-in UI. The tests call the real HuggingFace API, so allow up to 60 seconds per test for model inference.
+
+**Requirements for running E2E tests:**
+
+- `.env.local` must be configured (Clerk keys + HuggingFace token)
+- Clerk instance must be a development instance (not production)
+
+```bash
+# Run all E2E tests (headless)
+npm run test:e2e
+
+# Open Playwright UI for interactive debugging
+npm run test:e2e:ui
+```
+
+**Test coverage:**
+
+| Test | Flow |
+| --- | --- |
+| Compliant action → COMPLIES | Fill form → submit → assert badge → assert log entry |
+| Deviating action → DEVIATES | Fill form → submit → assert badge → assert log entry |
+| Persistence across reload | Submit → reload → assert log entry survives |
+| Edit and resubmit | Submit → edit → resubmit → assert updated result on same entry |
+| Soft delete | Submit → delete → assert removed from log → assert survives reload |
+
+---
+
+## Project Structure
+
+```text
+compliance-monitor/
+├── app/
+│   ├── (auth)/sign-in, sign-up    # Clerk auth pages
+│   ├── (app)/page.tsx             # Server Component — SSR + auth
+│   ├── api/analyze/route.ts       # POST — create analysis
+│   ├── api/analyses/route.ts      # GET — list analyses
+│   ├── api/analyses/[id]/route.ts # PATCH + DELETE
+│   └── providers.tsx              # QueryClientProvider
+├── components/
+│   ├── ui/                        # shadcn/ui primitives
+│   ├── compliance-monitor.tsx     # "use client" orchestrator
+│   ├── analysis-form.tsx
+│   ├── result-panel.tsx
+│   ├── history-list.tsx
+│   └── history-item.tsx
+├── server/                        # server-only
+│   ├── db.ts                      # Prisma client singleton
+│   ├── services/analysis.ts       # HuggingFace + orchestration
+│   └── repositories/analysis.ts  # All DB access, userId-filtered
+├── hooks/                         # TanStack Query hooks
+├── lib/                           # validations, env, utils
+├── types/                         # Shared TypeScript types
+├── e2e/                           # Playwright tests
+└── prisma/                        # Schema + migrations + seed
+```
+
+---
+
+## API
+
+| Method | Path | Auth | Description |
+| --- | --- | --- | --- |
+| `POST` | `/api/analyze` | Yes | Run compliance check (rate-limited) |
+| `GET` | `/api/analyses` | Yes | List user's active analyses |
+| `PATCH` | `/api/analyses/:id` | Yes | Edit + resubmit (ownership verified) |
+| `DELETE` | `/api/analyses/:id` | Yes | Soft-delete (ownership verified) |

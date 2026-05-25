@@ -1,0 +1,102 @@
+import { test, expect } from "@playwright/test";
+import { clerkSetup, setupClerkTestingToken } from "@clerk/testing/playwright";
+
+test.beforeAll(async () => {
+  await clerkSetup();
+});
+
+test.beforeEach(async ({ page }) => {
+  await setupClerkTestingToken({ page });
+  await page.goto("/");
+});
+
+test("submits a compliant action and shows COMPLIES", async ({ page }) => {
+  await page.getByTestId("action-input").fill(
+    "Closed ticket #48219 and sent confirmation email"
+  );
+  await page.getByTestId("guideline-input").fill(
+    "All closed tickets must include a confirmation email"
+  );
+  await page.getByTestId("submit-button").click();
+
+  await expect(page.getByTestId("result-panel")).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId("result-panel")).toContainText("COMPLIES");
+
+  await expect(page.getByTestId("history-list")).toBeVisible();
+  await expect(
+    page.getByTestId("history-item").first()
+  ).toContainText("Closed ticket #48219");
+});
+
+test("submits a deviating action and shows DEVIATES", async ({ page }) => {
+  await page.getByTestId("action-input").fill(
+    "Closed ticket #48219 without sending confirmation email"
+  );
+  await page.getByTestId("guideline-input").fill(
+    "All closed tickets must include a confirmation email"
+  );
+  await page.getByTestId("submit-button").click();
+
+  await expect(page.getByTestId("result-panel")).toContainText("DEVIATES", {
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId("history-item").first()).toContainText(
+    "without sending confirmation email"
+  );
+});
+
+test("persists compliance log across page reload", async ({ page }) => {
+  await page.getByTestId("action-input").fill("Rebooted the server and checked logs");
+  await page.getByTestId("guideline-input").fill(
+    "Servers must be rebooted weekly and logs reviewed after restart"
+  );
+  await page.getByTestId("submit-button").click();
+
+  await expect(page.getByTestId("result-panel")).toBeVisible({ timeout: 60_000 });
+
+  await page.reload();
+  await expect(page.getByTestId("history-item").first()).toContainText(
+    "Rebooted the server"
+  );
+});
+
+test("edits a log entry and updates the result", async ({ page }) => {
+  await page.getByTestId("action-input").fill(
+    "Closed ticket #48219 and sent confirmation email"
+  );
+  await page.getByTestId("guideline-input").fill(
+    "All closed tickets must include a confirmation email"
+  );
+  await page.getByTestId("submit-button").click();
+  await expect(page.getByTestId("result-panel")).toBeVisible({ timeout: 60_000 });
+
+  await page.getByTestId("edit-button").first().click();
+
+  await page.getByTestId("action-input").clear();
+  await page.getByTestId("action-input").fill(
+    "Closed ticket #48219 without sending confirmation email"
+  );
+  await page.getByTestId("submit-button").click();
+
+  await expect(page.getByTestId("result-panel")).toContainText("DEVIATES", {
+    timeout: 60_000,
+  });
+});
+
+test("soft-deletes an entry from the compliance log", async ({ page }) => {
+  await page.getByTestId("action-input").fill("Test action to be deleted");
+  await page.getByTestId("guideline-input").fill("Some test guideline");
+  await page.getByTestId("submit-button").click();
+  await expect(page.getByTestId("result-panel")).toBeVisible({ timeout: 60_000 });
+
+  const initialCount = await page.getByTestId("history-item").count();
+
+  await page.getByTestId("delete-button").first().click();
+
+  await expect(page.getByTestId("history-item")).toHaveCount(initialCount - 1);
+
+  await page.reload();
+  await expect(page.getByTestId("history-item")).toHaveCount(initialCount - 1);
+});
