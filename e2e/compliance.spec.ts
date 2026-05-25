@@ -121,6 +121,7 @@ test("soft-deletes an entry from the compliance log", async ({ page }) => {
   const initialCount = await page.getByTestId("history-item").count();
 
   await page.getByTestId("delete-button").first().click();
+  await page.getByTestId("confirm-delete-button").click();
 
   await expect(page.getByTestId("history-item")).toHaveCount(initialCount - 1);
 

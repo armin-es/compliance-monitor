@@ -124,11 +124,11 @@ npm run test:e2e:ui
 
 | Test | Flow |
 | --- | --- |
-| Compliant action → COMPLIES | Fill form → submit → assert badge → assert log entry |
-| Deviating action → DEVIATES | Fill form → submit → assert badge → assert log entry |
-| Persistence across reload | Submit → reload → assert log entry survives |
-| Edit and resubmit | Submit → edit → resubmit → assert updated result on same entry |
-| Soft delete | Submit → delete → assert removed from log → assert survives reload |
+| Compliant action → COMPLIES | Open dialog → fill form → submit → assert badge → close → assert log entry |
+| Deviating action → DEVIATES | Open dialog → fill form → submit → assert badge → close → assert log entry |
+| Persistence across reload | Open dialog → submit → reload → assert log entry survives |
+| Edit and resubmit | Submit → close → edit → resubmit → assert updated result |
+| Soft delete | Submit → close → delete → confirm → assert removed → assert survives reload |
 
 ---
 
@@ -146,6 +146,7 @@ compliance-monitor/
 ├── components/
 │   ├── ui/                        # shadcn/ui primitives
 │   ├── compliance-monitor.tsx     # "use client" orchestrator
+│   ├── check-dialog.tsx           # Run / edit dialog with inline result
 │   ├── analysis-form.tsx
 │   ├── result-panel.tsx
 │   ├── history-list.tsx
