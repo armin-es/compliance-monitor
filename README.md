@@ -1,12 +1,12 @@
-# Compliance Monitor — EASE IQ Take-Home
+# Compliance Monitor
 
-A production-quality Compliance Monitor built for the EASE IQ engineering take-home exercise. Actions are evaluated against process standards using the `facebook/bart-large-mnli` Zero-Shot NLI model, and results are stored in a per-user compliance log.
+A production-quality Compliance Monitor that evaluates actions against process standards using the `facebook/bart-large-mnli` Zero-Shot NLI model. Results are stored in a per-user compliance log as COMPLIES, DEVIATES, or NO STANDARD.
 
 ---
 
 ## What This Demonstrates
 
-This exercise is a miniaturized version of EASE IQ's core detection loop: an action is observed, it's measured against a standard, and the result is logged as COMPLIES, DEVIATES, or NO STANDARD. The architecture treats it accordingly — not as a toy project, but as a foundation that could scale into a multi-tenant production system.
+The core detection loop: an action is observed, it's measured against a standard, and the result is logged. The architecture treats it accordingly — not as a toy project, but as a foundation that could scale into a multi-tenant production system.
 
 | Signal | Implementation |
 | --- | --- |
@@ -20,7 +20,7 @@ This exercise is a miniaturized version of EASE IQ's core detection loop: an act
 | Rate limiting | `POST /api/analyze` rate-limited per user via Upstash Redis |
 | Soft delete | Records are never hard-deleted — auditable, append-only history |
 | HF edge cases | Cold start retry (2s → 4s → 8s), 45s timeout, typed error classification |
-| Domain language | UI speaks EASE IQ vocabulary throughout |
+| Domain language | UI speaks compliance domain vocabulary throughout |
 | Component library | shadcn/ui throughout — design-system fluency |
 | E2E coverage | Playwright + `@clerk/testing` — 5 authenticated user flows |
 
@@ -86,7 +86,7 @@ Open [http://localhost:3000](http://localhost:3000). Sign up for an account and 
 
 ## Seed the database (optional)
 
-To pre-populate the four spec test cases from the exercise brief:
+To pre-populate four example compliance checks:
 
 1. Sign up in the app and open your browser's dev console
 2. Run `Clerk.user.id` to get your Clerk `userId`

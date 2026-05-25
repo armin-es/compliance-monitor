@@ -33,7 +33,7 @@ const seedData = [
 ];
 
 async function main() {
-  console.log("Seeding database with spec test cases…");
+  console.log("Seeding database with example compliance checks…");
 
   for (const item of seedData) {
     const response = await fetch(

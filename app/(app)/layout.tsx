@@ -7,11 +7,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-600">
-              <span className="text-xs font-bold text-white">EQ</span>
+              <span className="text-xs font-bold text-white">CM</span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-900">EASE IQ</p>
-              <p className="text-xs text-slate-500">Compliance Monitor</p>
+              <p className="text-sm font-semibold text-slate-900">Compliance Monitor</p>
             </div>
           </div>
           <UserButton />

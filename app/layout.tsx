@@ -11,7 +11,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Compliance Monitor — EASE IQ",
+  title: "Compliance Monitor",
   description: "Monitor and log process compliance in real time.",
 };
 
