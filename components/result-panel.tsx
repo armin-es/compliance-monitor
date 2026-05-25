@@ -59,7 +59,7 @@ export function ResultPanel({ analysis }: ResultPanelProps) {
         <div className="flex gap-2.5 rounded-md bg-slate-50 border border-slate-200 p-3">
           <AlertTriangle className="h-4 w-4 text-slate-500 mt-0.5 shrink-0" />
           <p className="text-sm text-slate-600">
-            <span className="font-medium">Low confidence — human review recommended.</span>{" "}
+            <span className="font-medium">Low confidence. Human review recommended.</span>{" "}
             The model is uncertain about this classification.
           </p>
         </div>

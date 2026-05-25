@@ -56,7 +56,7 @@ async function main() {
     );
 
     if (!response.ok) {
-      console.warn(`HF API error for "${item.action}" — skipping`);
+      console.warn(`HF API error for "${item.action}", skipping`);
       continue;
     }
 

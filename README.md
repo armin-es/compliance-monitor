@@ -6,23 +6,23 @@ A production-quality Compliance Monitor that evaluates actions against process s
 
 ## What This Demonstrates
 
-The core detection loop: an action is observed, it's measured against a standard, and the result is logged. The architecture treats it accordingly — not as a toy project, but as a foundation that could scale into a multi-tenant production system.
+The core detection loop: an action is observed, measured against a standard, and the result is logged. The architecture treats it accordingly, as a foundation that could scale into a multi-tenant production system.
 
 | Signal | Implementation |
 | --- | --- |
-| Authentication | Clerk — middleware protection, session-aware SSR, ownership checks on mutations |
-| Layered architecture | Route → Service → Repository — each layer has one responsibility |
+| Authentication | Clerk: middleware protection, session-aware SSR, ownership checks on mutations |
+| Layered architecture | Route / Service / Repository: each layer has one responsibility |
 | Real persistence | Prisma 7 + SQLite (dev) / Postgres (prod swap via one env var) |
-| Type safety end-to-end | Zod schemas → TypeScript types → Prisma types — no `any` |
+| Type safety end-to-end | Zod schemas, TypeScript types, Prisma types: no `any` |
 | Server/Client boundary | `page.tsx` is a Server Component; interactive state in `ComplianceMonitor` |
-| Server state | TanStack Query v5 — `useMutation` + `useQuery`, not `useState` + raw fetch |
-| SSR initial data | No loading flash — data fetched server-side and passed as `initialData` |
+| Server state | TanStack Query v5: `useMutation` + `useQuery`, not `useState` + raw fetch |
+| SSR initial data | No loading flash: data fetched server-side and passed as `initialData` |
 | Rate limiting | `POST /api/analyze` rate-limited per user via Upstash Redis |
-| Soft delete | Records are never hard-deleted — auditable, append-only history |
-| HF edge cases | Cold start retry (2s → 4s → 8s), 45s timeout, typed error classification |
+| Soft delete | Records are never hard-deleted: auditable, append-only history |
+| HF edge cases | Cold start retry (2s / 4s / 8s), 45s timeout, typed error classification |
 | Domain language | UI speaks compliance domain vocabulary throughout |
-| Component library | shadcn/ui throughout — design-system fluency |
-| E2E coverage | Playwright + `@clerk/testing` — 5 authenticated user flows |
+| Component library | shadcn/ui throughout |
+| E2E coverage | Playwright + `@clerk/testing`: 5 authenticated user flows |
 
 ---
 
@@ -65,8 +65,8 @@ cp .env.example .env.local
 | `CLERK_SECRET_KEY` | Same Clerk project → API Keys |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Set to `/sign-in` |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Set to `/sign-up` |
-| `UPSTASH_REDIS_REST_URL` | Optional — leave blank to skip rate limiting in dev |
-| `UPSTASH_REDIS_REST_TOKEN` | Optional — leave blank to skip rate limiting in dev |
+| `UPSTASH_REDIS_REST_URL` | Optional: leave blank to skip rate limiting in dev |
+| `UPSTASH_REDIS_REST_TOKEN` | Optional: leave blank to skip rate limiting in dev |
 
 ### 3. Database setup
 
@@ -105,7 +105,7 @@ This calls the HuggingFace API live and stores all four results with real confid
 
 ### Playwright E2E
 
-The Playwright tests use `@clerk/testing` to inject authenticated sessions — they do not go through the sign-in UI. The tests call the real HuggingFace API, so allow up to 60 seconds per test for model inference.
+The Playwright tests use `@clerk/testing` to inject authenticated sessions without going through the sign-in UI. The tests call the real HuggingFace API, so allow up to 60 seconds per test for model inference.
 
 **Requirements for running E2E tests:**
 
@@ -138,9 +138,9 @@ npm run test:e2e:ui
 compliance-monitor/
 ├── app/
 │   ├── (auth)/sign-in, sign-up    # Clerk auth pages
-│   ├── (app)/page.tsx             # Server Component — SSR + auth
-│   ├── api/analyze/route.ts       # POST — create analysis
-│   ├── api/analyses/route.ts      # GET — list analyses
+│   ├── (app)/page.tsx             # Server Component: SSR + auth
+│   ├── api/analyze/route.ts       # POST: create analysis
+│   ├── api/analyses/route.ts      # GET: list analyses
 │   ├── api/analyses/[id]/route.ts # PATCH + DELETE
 │   └── providers.tsx              # QueryClientProvider
 ├── components/

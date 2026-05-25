@@ -98,7 +98,7 @@ export function ComplianceMonitor({ initialAnalyses }: ComplianceMonitorProps) {
           ) : (
             <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white">
               <p className="text-sm text-slate-400">
-                No result yet — run a check to get started
+                Run a check to see results here
               </p>
             </div>
           )}
