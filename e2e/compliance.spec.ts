@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { clerkSetup, setupClerkTestingToken } from "@clerk/testing/playwright";
 
 test.beforeAll(async () => {
@@ -10,7 +10,17 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
+async function openDialog(page: Page) {
+  await page.getByTestId("open-check-dialog").click();
+}
+
+async function closeDialog(page: Page) {
+  await page.getByTestId("done-button").click();
+}
+
 test("submits a compliant action and shows COMPLIES", async ({ page }) => {
+  await openDialog(page);
+
   await page.getByTestId("action-input").fill(
     "Closed ticket #48219 and sent confirmation email"
   );
@@ -24,6 +34,8 @@ test("submits a compliant action and shows COMPLIES", async ({ page }) => {
   });
   await expect(page.getByTestId("result-panel")).toContainText("COMPLIES");
 
+  await closeDialog(page);
+
   await expect(page.getByTestId("history-list")).toBeVisible();
   await expect(
     page.getByTestId("history-item").first()
@@ -31,6 +43,8 @@ test("submits a compliant action and shows COMPLIES", async ({ page }) => {
 });
 
 test("submits a deviating action and shows DEVIATES", async ({ page }) => {
+  await openDialog(page);
+
   await page.getByTestId("action-input").fill(
     "Closed ticket #48219 without sending confirmation email"
   );
@@ -42,12 +56,17 @@ test("submits a deviating action and shows DEVIATES", async ({ page }) => {
   await expect(page.getByTestId("result-panel")).toContainText("DEVIATES", {
     timeout: 60_000,
   });
+
+  await closeDialog(page);
+
   await expect(page.getByTestId("history-item").first()).toContainText(
     "without sending confirmation email"
   );
 });
 
 test("persists compliance log across page reload", async ({ page }) => {
+  await openDialog(page);
+
   await page.getByTestId("action-input").fill("Rebooted the server and checked logs");
   await page.getByTestId("guideline-input").fill(
     "Servers must be rebooted weekly and logs reviewed after restart"
@@ -63,6 +82,8 @@ test("persists compliance log across page reload", async ({ page }) => {
 });
 
 test("edits a log entry and updates the result", async ({ page }) => {
+  await openDialog(page);
+
   await page.getByTestId("action-input").fill(
     "Closed ticket #48219 and sent confirmation email"
   );
@@ -71,6 +92,8 @@ test("edits a log entry and updates the result", async ({ page }) => {
   );
   await page.getByTestId("submit-button").click();
   await expect(page.getByTestId("result-panel")).toBeVisible({ timeout: 60_000 });
+
+  await closeDialog(page);
 
   await page.getByTestId("edit-button").first().click();
 
@@ -86,10 +109,14 @@ test("edits a log entry and updates the result", async ({ page }) => {
 });
 
 test("soft-deletes an entry from the compliance log", async ({ page }) => {
+  await openDialog(page);
+
   await page.getByTestId("action-input").fill("Test action to be deleted");
   await page.getByTestId("guideline-input").fill("Some test guideline");
   await page.getByTestId("submit-button").click();
   await expect(page.getByTestId("result-panel")).toBeVisible({ timeout: 60_000 });
+
+  await closeDialog(page);
 
   const initialCount = await page.getByTestId("history-item").count();
 

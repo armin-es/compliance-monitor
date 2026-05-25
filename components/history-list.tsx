@@ -23,7 +23,7 @@ export function HistoryList({
         <ClipboardList className="mb-3 h-8 w-8 text-slate-300" />
         <p className="text-sm font-medium text-slate-500">No findings logged yet</p>
         <p className="mt-1 text-xs text-slate-400">
-          Submit a compliance check above to get started
+          Run a check to get started
         </p>
       </div>
     );
