@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { clerkSetup, setupClerkTestingToken } from "@clerk/testing/playwright";
+import { clerkSetup, setupClerkTestingToken, clerk } from "@clerk/testing/playwright";
 
 test.beforeAll(async () => {
   await clerkSetup();
@@ -7,6 +7,8 @@ test.beforeAll(async () => {
 
 test.beforeEach(async ({ page }) => {
   await setupClerkTestingToken({ page });
+  await page.goto("/");
+  await clerk.signIn({ page, emailAddress: process.env.E2E_CLERK_USER_EMAIL! });
   await page.goto("/");
 });
 
