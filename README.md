@@ -24,6 +24,7 @@ The core detection loop: an action is observed, measured against a standard, and
 | HF edge cases | Cold start retry (3 attempts, 2s / 4s backoff), 45s timeout, typed error classification |
 | Domain language | UI speaks compliance domain vocabulary throughout |
 | Component library | shadcn/ui throughout |
+| Local persistence | In development, TanStack Query's `persistQueryClient` syncs the query cache to `localStorage` so results survive hard reloads without a server round-trip |
 | E2E coverage | Playwright + `@clerk/testing`: 5 authenticated user flows |
 
 ---
