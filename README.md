@@ -17,7 +17,6 @@ The core detection loop: an action is observed, measured against a standard, and
 | Server/Client boundary | `page.tsx` is a Server Component; interactive state in `ComplianceMonitor` |
 | Server state | TanStack Query v5: `useMutation` + `useQuery`, not `useState` + raw fetch |
 | SSR initial data | No loading flash: data fetched server-side and passed as `initialData` |
-| Rate limiting | `POST /api/analyze` rate-limited per user via Upstash Redis |
 | Soft delete | Records are never hard-deleted: auditable, append-only history |
 | HF edge cases | Cold start retry (3 attempts, 2s / 4s backoff), 45s timeout, typed error classification |
 | Domain language | UI speaks compliance domain vocabulary throughout |
@@ -34,7 +33,6 @@ The core detection loop: an action is observed, measured against a standard, and
 - **Server state:** TanStack Query v5
 - **Database:** Prisma 7 + Neon Postgres
 - **Validation:** Zod v4
-- **Rate limiting:** @upstash/ratelimit (optional in dev)
 - **Testing:** Playwright + @clerk/testing
 
 ---
@@ -65,8 +63,6 @@ cp .env.example .env.local
 | `CLERK_SECRET_KEY` | Same Clerk project → API Keys |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Set to `/sign-in` |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Set to `/sign-up` |
-| `UPSTASH_REDIS_REST_URL` | Optional: leave blank to skip rate limiting in dev |
-| `UPSTASH_REDIS_REST_TOKEN` | Optional: leave blank to skip rate limiting in dev |
 
 ### 3. Database setup
 
@@ -168,7 +164,7 @@ compliance-monitor/
 
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
-| `POST` | `/api/analyze` | Yes | Run compliance check (rate-limited) |
+| `POST` | `/api/analyze` | Yes | Run compliance check |
 | `GET` | `/api/analyses` | Yes | List user's active analyses |
 | `PATCH` | `/api/analyses/:id` | Yes | Edit + resubmit (ownership verified) |
 | `DELETE` | `/api/analyses/:id` | Yes | Soft-delete (ownership verified) |

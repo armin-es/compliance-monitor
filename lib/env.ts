@@ -6,8 +6,6 @@ export const env = createEnv({
     DATABASE_URL: z.string().min(1),
     HUGGINGFACE_API_TOKEN: z.string().min(1),
     CLERK_SECRET_KEY: z.string().min(1),
-    UPSTASH_REDIS_REST_URL: z.string().url().optional(),
-    UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
     SEED_USER_ID: z.string().optional(),
   },
   client: {

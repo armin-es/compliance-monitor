@@ -1,7 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { analysisRequestSchema } from "@/lib/validations";
 import { runAnalysis, HuggingFaceError } from "@/server/services/analysis";
-import { checkRateLimit } from "@/server/rate-limit";
 import type { ApiError } from "@/types";
 
 export async function POST(request: Request) {
@@ -10,17 +9,6 @@ export async function POST(request: Request) {
     return Response.json(
       { error: "Unauthorized", code: "UNAUTHORIZED" } satisfies ApiError,
       { status: 401 }
-    );
-  }
-
-  const { allowed } = await checkRateLimit(userId);
-  if (!allowed) {
-    return Response.json(
-      {
-        error: "Too many requests. Please wait before submitting again.",
-        code: "RATE_LIMITED",
-      } satisfies ApiError,
-      { status: 429 }
     );
   }
 
