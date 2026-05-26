@@ -9,8 +9,8 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) {
     return Response.json(
       { error: "Unauthorized", code: "UNAUTHORIZED" } satisfies ApiError,
       { status: 401 }
@@ -41,6 +41,7 @@ export async function PATCH(
   try {
     const updated = await rerunAnalysis({
       id,
+      orgId,
       userId,
       action: parsed.data.action,
       guideline: parsed.data.guideline,
@@ -75,8 +76,8 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) {
     return Response.json(
       { error: "Unauthorized", code: "UNAUTHORIZED" } satisfies ApiError,
       { status: 401 }
@@ -94,7 +95,7 @@ export async function DELETE(
   const { id } = idParsed.data;
 
   try {
-    const deleted = await softDeleteAnalysis(id, userId);
+    const deleted = await softDeleteAnalysis(id, orgId);
     if (!deleted) {
       return Response.json(
         { error: "Analysis not found", code: "NOT_FOUND" } satisfies ApiError,

@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/nextjs";
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +13,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <p className="text-sm font-semibold text-slate-900">Compliance Monitor</p>
             </div>
           </div>
-          <UserButton />
+          <div className="flex items-center gap-3">
+            <OrganizationSwitcher hidePersonal />
+            <UserButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>

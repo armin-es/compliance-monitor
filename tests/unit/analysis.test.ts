@@ -13,6 +13,7 @@ import type { Analysis } from "@/types";
 
 const STUB_ANALYSIS = {
   id: "c1",
+  orgId: "org_1",
   userId: "u1",
   action: "action",
   guideline: "guideline",
@@ -82,12 +83,13 @@ describe("runAnalysis", () => {
     );
     vi.mocked(createAnalysis).mockResolvedValueOnce(STUB_ANALYSIS);
 
-    const promise = runAnalysis({ userId: "u1", action: "action", guideline: "guideline" });
+    const promise = runAnalysis({ orgId: "org_1", userId: "u1", action: "action", guideline: "guideline" });
     await vi.runAllTimersAsync();
     const result = await promise;
 
     expect(fetch).toHaveBeenCalledOnce();
     expect(createAnalysis).toHaveBeenCalledWith({
+      orgId: "org_1",
       userId: "u1",
       action: "action",
       guideline: "guideline",
@@ -114,7 +116,7 @@ describe("runAnalysis", () => {
     );
     vi.mocked(createAnalysis).mockResolvedValueOnce(STUB_ANALYSIS);
 
-    const promise = runAnalysis({ userId: "u1", action: "action", guideline: "guideline" });
+    const promise = runAnalysis({ orgId: "org_1", userId: "u1", action: "action", guideline: "guideline" });
     await vi.runAllTimersAsync();
 
     await expect(promise).resolves.toBe(STUB_ANALYSIS);
@@ -131,7 +133,7 @@ describe("runAnalysis", () => {
       })
     );
 
-    const promise = runAnalysis({ userId: "u1", action: "action", guideline: "guideline" });
+    const promise = runAnalysis({ orgId: "org_1", userId: "u1", action: "action", guideline: "guideline" });
     const caught = promise.catch((e: unknown) => e);
     await vi.runAllTimersAsync();
 
@@ -152,7 +154,7 @@ describe("runAnalysis", () => {
       })
     );
 
-    const promise = runAnalysis({ userId: "u1", action: "action", guideline: "guideline" });
+    const promise = runAnalysis({ orgId: "org_1", userId: "u1", action: "action", guideline: "guideline" });
     const caught = promise.catch((e: unknown) => e);
     await vi.runAllTimersAsync();
 

@@ -4,6 +4,7 @@ import type { Analysis } from "@/types";
 
 function serialize(row: {
   id: string;
+  orgId: string;
   userId: string;
   action: string;
   guideline: string;
@@ -15,6 +16,7 @@ function serialize(row: {
 }): Analysis {
   return {
     id: row.id,
+    orgId: row.orgId,
     userId: row.userId,
     action: row.action,
     guideline: row.guideline,
@@ -26,9 +28,9 @@ function serialize(row: {
   };
 }
 
-export async function getAnalyses(userId: string): Promise<Analysis[]> {
+export async function getAnalyses(orgId: string): Promise<Analysis[]> {
   const rows = await db.analysis.findMany({
-    where: { userId, deletedAt: null },
+    where: { orgId, deletedAt: null },
     orderBy: { createdAt: "desc" },
   });
   return rows.map(serialize);
@@ -36,15 +38,16 @@ export async function getAnalyses(userId: string): Promise<Analysis[]> {
 
 export async function getAnalysisById(
   id: string,
-  userId: string
+  orgId: string
 ): Promise<Analysis | null> {
   const row = await db.analysis.findFirst({
-    where: { id, userId, deletedAt: null },
+    where: { id, orgId, deletedAt: null },
   });
   return row ? serialize(row) : null;
 }
 
 export async function createAnalysis(data: {
+  orgId: string;
   userId: string;
   action: string;
   guideline: string;
@@ -57,7 +60,7 @@ export async function createAnalysis(data: {
 
 export async function updateAnalysis(
   id: string,
-  userId: string,
+  orgId: string,
   data: {
     action: string;
     guideline: string;
@@ -66,7 +69,7 @@ export async function updateAnalysis(
   }
 ): Promise<Analysis | null> {
   const existing = await db.analysis.findFirst({
-    where: { id, userId, deletedAt: null },
+    where: { id, orgId, deletedAt: null },
   });
   if (!existing) return null;
 
@@ -76,10 +79,10 @@ export async function updateAnalysis(
 
 export async function softDeleteAnalysis(
   id: string,
-  userId: string
+  orgId: string
 ): Promise<boolean> {
   const existing = await db.analysis.findFirst({
-    where: { id, userId, deletedAt: null },
+    where: { id, orgId, deletedAt: null },
   });
   if (!existing) return false;
 

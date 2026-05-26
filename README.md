@@ -10,7 +10,8 @@ The core detection loop: an action is observed, measured against a standard, and
 
 | Signal | Implementation |
 | --- | --- |
-| Authentication | Clerk: middleware protection, session-aware SSR, ownership checks on mutations |
+| Multi-tenancy | Each signup auto-provisions a Clerk Organization; all data is scoped by `orgId`. Invites are the next step via Clerk's prebuilt `<OrganizationProfile>` component. |
+| Authentication | Clerk: proxy protection, session-aware SSR, ownership checks on mutations |
 | Layered architecture | Route / Service / Repository: each layer has one responsibility |
 | Real persistence | Prisma 7 + Neon Postgres; same schema and migrations in dev and prod |
 | Type safety end-to-end | Zod schemas, TypeScript types, Prisma types: no `any` |
@@ -64,13 +65,17 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Set to `/sign-in` |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Set to `/sign-up` |
 
-### 3. Database setup
+### 3. Enable Clerk Organizations
+
+In your Clerk dashboard, go to **Configure -> Organizations** and enable Organizations. This is required for the workspace auto-provisioning flow.
+
+### 4. Database setup
 
 ```bash
 npx prisma migrate dev
 ```
 
-### 4. Run the dev server
+### 5. Run the dev server
 
 ```bash
 npm run dev
@@ -150,7 +155,8 @@ compliance-monitor/
 ├── server/                        # server-only
 │   ├── db.ts                      # Prisma client singleton
 │   ├── services/analysis.ts       # HuggingFace + orchestration
-│   └── repositories/analysis.ts  # All DB access, userId-filtered
+│   ├── repositories/analysis.ts  # All DB access, orgId-scoped
+│   └── actions/org.ts             # provisionOrg server action
 ├── hooks/                         # TanStack Query hooks
 ├── lib/                           # validations, env, utils
 ├── types/                         # Shared TypeScript types

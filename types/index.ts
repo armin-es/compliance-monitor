@@ -7,6 +7,7 @@ export interface AnalysisRequest {
 
 export interface Analysis {
   id: string;
+  orgId: string;
   userId: string;
   action: string;
   guideline: string;

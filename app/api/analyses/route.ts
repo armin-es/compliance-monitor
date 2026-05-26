@@ -3,8 +3,8 @@ import { getAnalyses } from "@/server/repositories/analysis";
 import type { ApiError } from "@/types";
 
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) {
     return Response.json(
       { error: "Unauthorized", code: "UNAUTHORIZED" } satisfies ApiError,
       { status: 401 }
@@ -12,7 +12,7 @@ export async function GET() {
   }
 
   try {
-    const analyses = await getAnalyses(userId);
+    const analyses = await getAnalyses(orgId);
     return Response.json(analyses);
   } catch (err) {
     console.error("GET /api/analyses error:", err);

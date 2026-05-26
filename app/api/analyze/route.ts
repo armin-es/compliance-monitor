@@ -4,8 +4,8 @@ import { runAnalysis, HuggingFaceError } from "@/server/services/analysis";
 import type { ApiError } from "@/types";
 
 export async function POST(request: Request) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) {
     return Response.json(
       { error: "Unauthorized", code: "UNAUTHORIZED" } satisfies ApiError,
       { status: 401 }
@@ -26,6 +26,7 @@ export async function POST(request: Request) {
 
   try {
     const analysis = await runAnalysis({
+      orgId,
       userId,
       action: parsed.data.action,
       guideline: parsed.data.guideline,

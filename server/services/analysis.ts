@@ -109,6 +109,7 @@ export function mapResult(hfResponse: HFResponse): {
 }
 
 export async function runAnalysis(data: {
+  orgId: string;
   userId: string;
   action: string;
   guideline: string;
@@ -117,6 +118,7 @@ export async function runAnalysis(data: {
   const { result, confidence } = mapResult(hfResponse);
 
   return createAnalysis({
+    orgId: data.orgId,
     userId: data.userId,
     action: data.action,
     guideline: data.guideline,
@@ -127,6 +129,7 @@ export async function runAnalysis(data: {
 
 export async function rerunAnalysis(data: {
   id: string;
+  orgId: string;
   userId: string;
   action: string;
   guideline: string;
@@ -134,7 +137,7 @@ export async function rerunAnalysis(data: {
   const hfResponse = await callHuggingFace(data.action, data.guideline);
   const { result, confidence } = mapResult(hfResponse);
 
-  return updateAnalysis(data.id, data.userId, {
+  return updateAnalysis(data.id, data.orgId, {
     action: data.action,
     guideline: data.guideline,
     result,
