@@ -19,6 +19,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await clerk.signIn({ page, emailAddress: process.env.E2E_CLERK_USER_EMAIL! });
   await page.goto("/");
+  await page.getByTestId("open-check-dialog").waitFor({ state: "visible", timeout: 20_000 });
 });
 
 async function openDialog(page: Page) {

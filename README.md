@@ -1,6 +1,8 @@
 # Compliance Monitor
 
-A production-quality Compliance Monitor that evaluates actions against process standards using the `facebook/bart-large-mnli` Zero-Shot NLI model. Results are stored in a per-user compliance log as COMPLIES, DEVIATES, or UNCLEAR.
+A production-quality Compliance Monitor that evaluates actions against process standards using the `facebook/bart-large-mnli` Zero-Shot NLI model. Results are stored in a per-org compliance log as COMPLIES, DEVIATES, or UNCLEAR.
+
+https://github.com/user-attachments/assets/a43495a0-8949-4cb4-842d-7aca4aefac6d
 
 ---
 
@@ -67,7 +69,7 @@ cp .env.example .env.local
 
 ### 3. Enable Clerk Organizations
 
-In your Clerk dashboard, go to **Configure -> Organizations** and enable Organizations. This is required for the workspace auto-provisioning flow.
+In your Clerk dashboard, go to **Configure -> Organizations** and enable Organizations. Select **Membership optional** when prompted. This is required for the workspace auto-provisioning flow.
 
 ### 4. Database setup
 
@@ -91,8 +93,15 @@ To pre-populate four example compliance checks:
 
 1. Sign up in the app and open your browser's dev console
 2. Run `Clerk.user.id` to get your Clerk `userId`
-3. Add it to `.env.local`: `SEED_USER_ID=user_xxxx`
-4. Run the seed:
+3. Run `Clerk.session.lastActiveOrganizationId` to get your Clerk `orgId`
+4. Add both to `.env.local`:
+
+   ```env
+   SEED_USER_ID=user_xxxx
+   SEED_ORG_ID=org_xxxx
+   ```
+
+5. Run the seed:
 
 ```bash
 npm run db:seed
@@ -171,6 +180,6 @@ compliance-monitor/
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
 | `POST` | `/api/analyze` | Yes | Run compliance check |
-| `GET` | `/api/analyses` | Yes | List user's active analyses |
+| `GET` | `/api/analyses` | Yes | List org's active analyses |
 | `PATCH` | `/api/analyses/:id` | Yes | Edit + resubmit (ownership verified) |
 | `DELETE` | `/api/analyses/:id` | Yes | Soft-delete (ownership verified) |

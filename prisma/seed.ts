@@ -2,11 +2,13 @@ import { PrismaClient } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const userId = process.env.SEED_USER_ID;
-if (!userId) {
-  console.error("SEED_USER_ID env var is required. See README for instructions.");
+const orgId = process.env.SEED_ORG_ID;
+if (!userId || !orgId) {
+  console.error("SEED_USER_ID and SEED_ORG_ID env vars are required. See README for instructions.");
   process.exit(1);
 }
 const seedUserId = userId as string;
+const seedOrgId = orgId as string;
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const db = new PrismaClient({ adapter });
@@ -69,6 +71,7 @@ async function main() {
 
     await db.analysis.create({
       data: {
+        orgId: seedOrgId,
         userId: seedUserId,
         action: item.action,
         guideline: item.guideline,
