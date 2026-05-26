@@ -1,6 +1,6 @@
 # Compliance Monitor
 
-A production-quality Compliance Monitor that evaluates actions against process standards using the `facebook/bart-large-mnli` Zero-Shot NLI model. Results are stored in a per-user compliance log as COMPLIES, DEVIATES, or NO STANDARD.
+A production-quality Compliance Monitor that evaluates actions against process standards using the `facebook/bart-large-mnli` Zero-Shot NLI model. Results are stored in a per-user compliance log as COMPLIES, DEVIATES, or UNCLEAR.
 
 ---
 
@@ -19,7 +19,7 @@ The core detection loop: an action is observed, measured against a standard, and
 | SSR initial data | No loading flash: data fetched server-side and passed as `initialData` |
 | Rate limiting | `POST /api/analyze` rate-limited per user via Upstash Redis |
 | Soft delete | Records are never hard-deleted: auditable, append-only history |
-| HF edge cases | Cold start retry (2s / 4s / 8s), 45s timeout, typed error classification |
+| HF edge cases | Cold start retry (3 attempts, 2s / 4s backoff), 45s timeout, typed error classification |
 | Domain language | UI speaks compliance domain vocabulary throughout |
 | Component library | shadcn/ui throughout |
 | E2E coverage | Playwright + `@clerk/testing`: 5 authenticated user flows |

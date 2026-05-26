@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { analysisRequestSchema } from "@/lib/validations";
+import { analysisRequestSchema, analysisIdSchema } from "@/lib/validations";
 import { rerunAnalysis } from "@/server/services/analysis";
 import { softDeleteAnalysis } from "@/server/repositories/analysis";
 import { HuggingFaceError } from "@/server/services/analysis";
@@ -17,7 +17,15 @@ export async function PATCH(
     );
   }
 
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const idParsed = analysisIdSchema.safeParse({ id: rawId });
+  if (!idParsed.success) {
+    return Response.json(
+      { error: "Invalid analysis ID", code: "VALIDATION_ERROR" } satisfies ApiError,
+      { status: 400 }
+    );
+  }
+  const { id } = idParsed.data;
   const body = await request.json().catch(() => null);
   const parsed = analysisRequestSchema.safeParse(body);
   if (!parsed.success) {
@@ -75,7 +83,15 @@ export async function DELETE(
     );
   }
 
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const idParsed = analysisIdSchema.safeParse({ id: rawId });
+  if (!idParsed.success) {
+    return Response.json(
+      { error: "Invalid analysis ID", code: "VALIDATION_ERROR" } satisfies ApiError,
+      { status: 400 }
+    );
+  }
+  const { id } = idParsed.data;
 
   try {
     const deleted = await softDeleteAnalysis(id, userId);

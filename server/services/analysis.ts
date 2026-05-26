@@ -1,5 +1,6 @@
 import "server-only";
 import type { ComplianceResult } from "@/types";
+import { env } from "@/lib/env";
 import {
   createAnalysis,
   updateAnalysis,
@@ -31,7 +32,7 @@ async function callHuggingFace(
     response = await fetch(HF_API_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
+        Authorization: `Bearer ${env.HUGGINGFACE_API_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -91,7 +92,7 @@ export class HuggingFaceError extends Error {
   }
 }
 
-function mapResult(hfResponse: HFResponse): {
+export function mapResult(hfResponse: HFResponse): {
   result: ComplianceResult;
   confidence: number;
 } {
