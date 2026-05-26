@@ -16,7 +16,7 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60 * 1000,
+        staleTime: isDev ? Infinity : 60 * 1000,
         gcTime: isDev ? 1000 * 60 * 60 * 24 : undefined,
       },
     },

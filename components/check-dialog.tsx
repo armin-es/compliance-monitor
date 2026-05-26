@@ -30,6 +30,8 @@ export function CheckDialog({
 }: CheckDialogProps) {
   const [view, setView] = useState<View>("form");
   const [result, setResult] = useState<Analysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   const { mutate: analyze, isPending: isAnalyzing } = useAnalyze();
   const { mutate: reanalyze, isPending: isReanalyzing } = useReanalyze(
@@ -38,12 +40,14 @@ export function CheckDialog({
   const isPending = isAnalyzing || isReanalyzing;
 
   function handleSubmit(data: { action: string; guideline: string }) {
+    setError(null);
     if (editingEntry) {
       reanalyze(data, {
         onSuccess: (updated) => {
           setResult(updated);
           setView("result");
         },
+        onError: (err) => setError(err.message),
       });
     } else {
       analyze(data, {
@@ -51,6 +55,7 @@ export function CheckDialog({
           setResult(created);
           setView("result");
         },
+        onError: (err) => setError(err.message),
       });
     }
   }
@@ -59,6 +64,8 @@ export function CheckDialog({
     if (!nextOpen) {
       setView("form");
       setResult(null);
+      setError(null);
+      setFormKey(0);
       onClose();
     }
     onOpenChange(nextOpen);
@@ -67,6 +74,8 @@ export function CheckDialog({
   function handleRunAnother() {
     setView("form");
     setResult(null);
+    setError(null);
+    setFormKey((k) => k + 1);
   }
 
   return (
@@ -97,13 +106,20 @@ export function CheckDialog({
             </div>
           </div>
         ) : (
-          <AnalysisForm
-            key={editingEntry?.id ?? "new"}
-            onSubmit={handleSubmit}
-            isPending={isPending}
-            editingValues={editingEntry}
-            onCancelEdit={() => handleOpenChange(false)}
-          />
+          <div className="space-y-3">
+            {error && (
+              <div className="rounded-md bg-rose-50 border border-rose-200 px-3 py-2">
+                <p className="text-sm text-rose-700">{error}</p>
+              </div>
+            )}
+            <AnalysisForm
+              key={editingEntry?.id ?? `form-${formKey}`}
+              onSubmit={handleSubmit}
+              isPending={isPending}
+              editingValues={editingEntry}
+              onCancelEdit={() => handleOpenChange(false)}
+            />
+          </div>
         )}
       </DialogContent>
     </Dialog>
