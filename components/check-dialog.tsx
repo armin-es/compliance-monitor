@@ -98,6 +98,7 @@ export function CheckDialog({
           </div>
         ) : (
           <AnalysisForm
+            key={editingEntry?.id ?? "new"}
             onSubmit={handleSubmit}
             isPending={isPending}
             editingValues={editingEntry}

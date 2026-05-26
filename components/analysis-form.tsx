@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, RotateCcw } from "lucide-react";
@@ -19,15 +19,8 @@ export function AnalysisForm({
   editingValues,
   onCancelEdit,
 }: AnalysisFormProps) {
-  const [action, setAction] = useState("");
-  const [guideline, setGuideline] = useState("");
-
-  useEffect(() => {
-    if (editingValues) {
-      setAction(editingValues.action);
-      setGuideline(editingValues.guideline);
-    }
-  }, [editingValues]);
+  const [action, setAction] = useState(editingValues?.action ?? "");
+  const [guideline, setGuideline] = useState(editingValues?.guideline ?? "");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
