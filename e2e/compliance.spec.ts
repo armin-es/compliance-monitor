@@ -1,11 +1,20 @@
 import { test, expect, type Page } from "@playwright/test";
 import { clerkSetup, setupClerkTestingToken, clerk } from "@clerk/testing/playwright";
+import { Client } from "pg";
 
 test.beforeAll(async () => {
   await clerkSetup();
 });
 
 test.beforeEach(async ({ page }) => {
+  const db = new Client({ connectionString: process.env.DATABASE_URL });
+  await db.connect();
+  try {
+    await db.query('DELETE FROM "Analysis"');
+  } finally {
+    await db.end();
+  }
+
   await setupClerkTestingToken({ page });
   await page.goto("/");
   await clerk.signIn({ page, emailAddress: process.env.E2E_CLERK_USER_EMAIL! });
