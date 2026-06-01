@@ -11,6 +11,10 @@ if (!userId || !orgId || !token) {
   process.exit(1);
 }
 
+const seedUserId = userId as string;
+const seedOrgId = orgId as string;
+const seedToken = token as string;
+
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const db = new PrismaClient({ adapter });
 
@@ -41,7 +45,7 @@ async function main() {
     let confidence: number;
 
     try {
-      const hfResponse = await callHuggingFace(item.action, item.guideline, token);
+      const hfResponse = await callHuggingFace(item.action, item.guideline, seedToken);
       ({ result, confidence } = mapResult(hfResponse));
     } catch (err) {
       console.warn(`HF API error for "${item.action}", skipping:`, err);
@@ -50,8 +54,8 @@ async function main() {
 
     await db.analysis.create({
       data: {
-        orgId,
-        userId,
+        orgId: seedOrgId,
+        userId: seedUserId,
         action: item.action,
         guideline: item.guideline,
         result,
