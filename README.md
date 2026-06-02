@@ -62,7 +62,7 @@ cp .env.example .env.local
 | Variable | How to get it |
 | --- | --- |
 | `HUGGINGFACE_API_TOKEN` | Create a free account at [huggingface.co](https://huggingface.co), then go to Profile → Settings → Access Tokens → New token (Read) |
-| `DATABASE_URL` | Create a free project at [neon.tech](https://neon.tech), create a dev branch, copy the connection string |
+| `DATABASE_URL` | Local Docker (see step 4a): `postgresql://postgres:postgres@localhost:5432/compliance_monitor`. Cloud: create a project at [neon.tech](https://neon.tech) and copy the connection string. |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Create a project at [clerk.com](https://clerk.com) → API Keys |
 | `CLERK_SECRET_KEY` | Same Clerk project → API Keys |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Set to `/sign-in` |
@@ -73,6 +73,26 @@ cp .env.example .env.local
 In your Clerk dashboard, go to **Configure -> Organizations** and enable Organizations. Select **Membership optional** when prompted. This is required for the workspace auto-provisioning flow.
 
 ### 4. Database setup
+
+#### Option A: local Docker (recommended for development)
+
+A `docker-compose.yml` is included. Start Postgres with:
+
+```bash
+docker compose up -d
+```
+
+Set `DATABASE_URL` in `.env.local` to:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/compliance_monitor"
+```
+
+#### Option B: Neon (cloud)
+
+Create a project at [neon.tech](https://neon.tech), copy the connection string into `DATABASE_URL`, and use the direct (non-pooler) endpoint.
+
+#### Apply migrations (both options)
 
 ```bash
 npx prisma migrate dev
