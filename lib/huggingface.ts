@@ -2,7 +2,7 @@ import type { ComplianceResult } from "@/types";
 
 const HF_MODEL = "facebook/bart-large-mnli";
 export const HF_API_URL = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}`;
-export const CANDIDATE_LABELS = ["complies", "deviates", "unclear"] as const;
+export const CANDIDATE_LABELS = ["compliant", "non-compliant", "unclear"] as const;
 export const MAX_RETRIES = 3;
 export const TIMEOUT_MS = 45_000;
 
@@ -48,8 +48,7 @@ export async function callHuggingFace(
         inputs: `Reported action: ${action}\nProcess standard: ${guideline}`,
         parameters: {
           candidate_labels: CANDIDATE_LABELS,
-          hypothesis_template:
-            "The described action {} the stated process standard.",
+          hypothesis_template: "The described action is {}.",
         },
       }),
       signal: controller.signal,
@@ -94,10 +93,10 @@ export function mapResult(hfResponse: HFResponse): {
   const topLabel = (top?.label ?? "unclear").toUpperCase();
   const confidence = top?.score ?? 0;
 
-  const result: ComplianceResult =
-    topLabel === "COMPLIES" || topLabel === "DEVIATES" || topLabel === "UNCLEAR"
-      ? topLabel
-      : "UNCLEAR";
+  let result: ComplianceResult;
+  if (topLabel === "COMPLIANT") result = "COMPLIES";
+  else if (topLabel === "NON-COMPLIANT") result = "DEVIATES";
+  else result = "UNCLEAR";
 
   return { result, confidence };
 }

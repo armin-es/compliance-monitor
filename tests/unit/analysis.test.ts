@@ -25,15 +25,15 @@ const STUB_ANALYSIS = {
 } satisfies Analysis;
 
 describe("mapResult", () => {
-  it("returns COMPLIES when top label is complies", () => {
-    expect(mapResult([{ label: "complies", score: 0.92 }])).toEqual({
+  it("returns COMPLIES when top label is compliant", () => {
+    expect(mapResult([{ label: "compliant", score: 0.92 }])).toEqual({
       result: "COMPLIES",
       confidence: 0.92,
     });
   });
 
-  it("returns DEVIATES when top label is deviates", () => {
-    expect(mapResult([{ label: "deviates", score: 0.88 }])).toEqual({
+  it("returns DEVIATES when top label is non-compliant", () => {
+    expect(mapResult([{ label: "non-compliant", score: 0.88 }])).toEqual({
       result: "DEVIATES",
       confidence: 0.88,
     });
@@ -75,8 +75,8 @@ describe("runAnalysis", () => {
         status: 200,
         ok: true,
         json: async () => [
-          { label: "complies", score: 0.92 },
-          { label: "deviates", score: 0.05 },
+          { label: "compliant", score: 0.92 },
+          { label: "non-compliant", score: 0.05 },
           { label: "unclear", score: 0.03 },
         ],
       })
@@ -111,7 +111,7 @@ describe("runAnalysis", () => {
         .mockResolvedValueOnce({
           status: 200,
           ok: true,
-          json: async () => [{ label: "complies", score: 0.9 }],
+          json: async () => [{ label: "compliant", score: 0.9 }],
         })
     );
     vi.mocked(createAnalysis).mockResolvedValueOnce(STUB_ANALYSIS);
